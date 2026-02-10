@@ -1,11 +1,21 @@
-'use client';
+"use client";
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function ReportFound() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [item, setItem] = useState(null);
   const [requested, setRequested] = useState(false);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
 
   // Load selected item
   useEffect(() => {
@@ -14,6 +24,18 @@ export default function ReportFound() {
       setItem(storedItem);
     }
   }, []);
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null;
+  }
 
   // Handle request
   const handleRequest = (e) => {
@@ -49,13 +71,11 @@ export default function ReportFound() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
       <div className="bg-white border rounded-xl shadow-sm w-full max-w-5xl p-10">
-        
         <h1 className="text-3xl font-bold text-center mb-10">
           Request Found Item
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-          
           {/* IMAGE */}
           <div className="flex justify-center">
             <Image
@@ -69,7 +89,6 @@ export default function ReportFound() {
 
           {/* FORM */}
           <form className="space-y-5" onSubmit={handleRequest}>
-            
             <div>
               <label className="block mb-1 font-medium">Item Name</label>
               <input
@@ -106,7 +125,6 @@ export default function ReportFound() {
             >
               Request
             </button>
-
           </form>
         </div>
       </div>

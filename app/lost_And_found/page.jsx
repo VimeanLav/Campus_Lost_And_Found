@@ -1,16 +1,36 @@
-'use client';
+"use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function LostFoundPage() {
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [items, setItems] = useState([]);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
 
   useEffect(() => {
     const storedItems = JSON.parse(localStorage.getItem("lostItems")) || [];
     setItems(storedItems);
   }, []);
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null;
+  }
 
   const handleClick = (item) => {
     localStorage.setItem("selectedItem", JSON.stringify(item));
@@ -33,7 +53,6 @@ export default function LostFoundPage() {
         </button>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-
           {items.map((item) => (
             <div
               key={item.id}
@@ -51,7 +70,6 @@ export default function LostFoundPage() {
               </p>
             </div>
           ))}
-
         </div>
       </div>
     </div>

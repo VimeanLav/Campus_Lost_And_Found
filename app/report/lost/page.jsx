@@ -1,10 +1,12 @@
-'use client';
+"use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function ReportLost() {
+  const { data: session, status } = useSession();
   const router = useRouter();
   const fileRef = useRef(null);
 
@@ -12,6 +14,24 @@ export default function ReportLost() {
   const [itemName, setItemName] = useState("");
   const [date, setDate] = useState("");
   const [details, setDetails] = useState("");
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null;
+  }
 
   // Convert image to Base64 so it never disappears
   const handleImage = (e) => {
@@ -35,7 +55,10 @@ export default function ReportLost() {
     };
 
     const existingItems = JSON.parse(localStorage.getItem("lostItems")) || [];
-    localStorage.setItem("lostItems", JSON.stringify([...existingItems, newItem]));
+    localStorage.setItem(
+      "lostItems",
+      JSON.stringify([...existingItems, newItem]),
+    );
 
     router.push("/lost_And_found");
   };
@@ -48,7 +71,6 @@ export default function ReportLost() {
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-
           {/* LEFT IMAGE */}
           <div className="flex justify-center">
             <Image
@@ -70,7 +92,6 @@ export default function ReportLost() {
 
           {/* RIGHT FORM */}
           <form className="space-y-5" onSubmit={handleSubmit}>
-            
             <div>
               <label className="block mb-1 font-medium">Item Name</label>
               <input
@@ -110,7 +131,6 @@ export default function ReportLost() {
             >
               Submit
             </button>
-
           </form>
         </div>
       </div>
