@@ -115,9 +115,14 @@ export default function LoginPage() {
               required
             />
 
+
             <div className="flex items-center gap-2 text-sm mb-4">
               <input type="checkbox" />
               <span>Remember me</span>
+              <span className="flex-1"></span>
+              <Link href="/forgot-password" className="text-blue-600 hover:underline ml-auto">
+                Forgot password?
+              </Link>
             </div>
 
             {/* LOGIN BUTTON */}
