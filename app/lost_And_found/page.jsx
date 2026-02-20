@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useCallback } from "react";
 
 export default function LostFoundPage() {
   const { data: session, status } = useSession();
@@ -16,8 +17,17 @@ export default function LostFoundPage() {
   }, [status, router]);
 
   useEffect(() => {
-    const storedItems = JSON.parse(localStorage.getItem("lostItems")) || [];
-    setItems(storedItems);
+    const fetchItems = async () => {
+      try {
+        const res = await fetch("/api/lost-and-found");
+        if (!res.ok) throw new Error("Failed to fetch items");
+        const data = await res.json();
+        setItems(data);
+      } catch (err) {
+        setItems([]);
+      }
+    };
+    fetchItems();
   }, []);
 
   if (status === "loading") {
@@ -32,42 +42,28 @@ export default function LostFoundPage() {
     return null;
   }
 
-  const handleClick = (item) => {
-    localStorage.setItem("selectedItem", JSON.stringify(item));
-    router.push("/report/found"); // page to request found item
-  };
+  // No click handler needed, use Link below
 
-  const handleReset = () => {
-    localStorage.removeItem("lostItems");
-    setItems([]);
-  };
+  const handleItemClick = useCallback((id) => {
+    router.push(`/report/found/${id}`);
+  }, [router]);
 
   return (
     <div id="lost_And_found" className="px-10 py-12">
       <div className="border rounded-xl p-10">
-        <button
-          onClick={handleReset}
-          className="mb-6 bg-red-500 text-white px-4 py-2 rounded"
-        >
-          Reset Items
-        </button>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {items.map((item) => (
             <div
-              key={item.id}
-              className="text-center cursor-pointer"
-              onClick={() => handleClick(item)}
+              key={item._id}
+              className="block text-center border rounded-lg p-4 shadow hover:bg-gray-50 transition cursor-pointer"
+              onClick={() => handleItemClick(item._id)}
             >
               <img
-                src={item.image || "/watch.png"}
+                src={item.imageUrl || "/watch.png"}
                 alt="item"
-                className="w-full h-[200px] object-contain"
+                className="w-full h-[200px] object-contain mx-auto"
               />
-
-              <p className="mt-6 text-gray-700 leading-relaxed">
-                {item.description}
-              </p>
+              <b>{item.title}</b>
             </div>
           ))}
         </div>

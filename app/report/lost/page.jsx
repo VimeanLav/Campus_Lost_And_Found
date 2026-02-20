@@ -14,6 +14,10 @@ export default function ReportLost() {
   const [itemName, setItemName] = useState("");
   const [date, setDate] = useState("");
   const [details, setDetails] = useState("");
+  const [category, setCategory] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [location, setLocation] = useState("");
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -45,22 +49,29 @@ export default function ReportLost() {
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const newItem = {
-      id: Date.now(),
-      image,
-      description: `${itemName} - ${details} (${date})`,
-    };
-
-    const existingItems = JSON.parse(localStorage.getItem("lostItems")) || [];
-    localStorage.setItem(
-      "lostItems",
-      JSON.stringify([...existingItems, newItem]),
-    );
-
-    router.push("/lost_And_found");
+    try {
+      const res = await fetch("/api/lost-and-found", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: itemName,
+          description: details,
+          category,
+          phone,
+          email,
+          location,
+          date,
+          imageUrl: image,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to report lost item");
+      router.push("/lost_And_found");
+    } catch (err) {
+      alert(err.message);
+    }
   };
 
   return (
@@ -92,6 +103,25 @@ export default function ReportLost() {
 
           {/* RIGHT FORM */}
           <form className="space-y-5" onSubmit={handleSubmit}>
+
+            <div>
+              <label className="block mb-1 font-medium">Category</label>
+              <select
+                className="w-full border rounded-md p-3"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                required
+              >
+                <option value="">Select Category</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Clothing">Clothing</option>
+                <option value="Books">Books</option>
+                <option value="Accessories">Accessories</option>
+                <option value="ID/Document">ID/Document</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
             <div>
               <label className="block mb-1 font-medium">Item Name</label>
               <input
@@ -110,6 +140,39 @@ export default function ReportLost() {
                 className="w-full border rounded-md p-3"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block mb-1 font-medium">Phone Number</label>
+              <input
+                type="tel"
+                className="w-full border rounded-md p-3"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block mb-1 font-medium">Email</label>
+              <input
+                type="email"
+                className="w-full border rounded-md p-3"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block mb-1 font-medium">Location</label>
+              <input
+                type="text"
+                className="w-full border rounded-md p-3"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
                 required
               />
             </div>

@@ -31,7 +31,7 @@ const LostItemSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['lost', 'found', 'requested'],
+    enum: ['lost', 'found'],
     required: true,
   },
   user: {
