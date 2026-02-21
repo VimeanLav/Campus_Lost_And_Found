@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const LostItemSchema = new mongoose.Schema({
   title: {
@@ -49,4 +49,4 @@ const LostItemSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.models.LostItem || mongoose.model('LostItem', LostItemSchema);
+export default mongoose.models.LostItem || mongoose.model('LostItem', LostItemSchema);

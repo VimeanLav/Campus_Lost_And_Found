@@ -79,7 +79,7 @@ export default function Navbar() {
         {session ? (
           <>
             <Link href="/profile" title={session.user?.email}>
-              👤 {session.user?.name}
+              👤
             </Link>
             <button
               onClick={() => signOut({ callbackUrl: "/" })}

@@ -50,7 +50,7 @@ export async function PATCH(req, context) {
     if (!requester) {
       return NextResponse.json({ error: 'Requester not found' }, { status: 404 });
     }
-    item.status = 'requested';
+    item.status = 'found';
     item.requestedBy = session.user.id;
     await item.save();
 
